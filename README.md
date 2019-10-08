@@ -6,6 +6,51 @@ Router core component for [Egg.js](https://github.com/eggjs).
 
 > And thanks for the greate work of @alexmingoia and the original team.
 
+# 源码分析
+
+fork自koa-router，对router.js和layer.js进行class的重写，方便egg_router继承。
+
+继承后，增强了功能。处理和控制器作为中间件最内层的逻辑。控制器统一取自app.controller。
+
+
+
+## 文件结构
+
+``` bash
+├── index.js - 入口文件，暴露lib/router的KoaRouter和lib/egg_router的EggRouter。
+├── lib
+|  ├── egg_router.js - 继承自lib/router.js的Router，增加了功能：寻找路径时将控制器作为中间件加入列表最后。注册时支持控制器传入。
+|  ├── layer.js - koa的layer，对koa-router的layer.js进行改写，通过class而不是prototpye来完成Layer对象。
+|  ├── router.js - koa的router，对koa-router进行改写，通过class而不是prototpye来完成Router对象。
+|  └── utils.js
+```
+
+## 逐个文件分析
+
+### index.js
+
+入口文件，暴露lib/router的KoaRouter和lib/egg_router的EggRouter。
+
+### lib/router.js
+
+koa的router，对koa-router进行改写，通过class而不是prototpye来完成Router对象。
+
+### lib/layer.js
+
+koa的layer，对koa-router的layer.js进行改写，通过class而不是prototpye来完成Layer对象。
+
+### lib/egg_router.js
+
+继承自lib/router.js的Router，增加了功能：寻找路径时将控制器作为中间件加入列表最后。注册时支持控制器传入。
+
+register注册方法批量注册路由，将传入的控制器兼容generator后，传入中间件列表尾部，再逐个调用koa-router的register来批量注册。
+
+get、put等方法则是给路由增加前缀和对应的中间件列表（包括最内层的控制器），再调用父类同名方法。
+
+
+
+
+
 ## API Reference
 
 * [egg-router](#module_egg-router)
